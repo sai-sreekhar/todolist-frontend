@@ -322,6 +322,7 @@ class FormClassComponent extends Component {
                         onChange={this.handleOnChange}
                         error={this.state.inputError ? true : false}
                         helperText={this.state.inputError}
+                        disabled={this.state.isLoading}
                       />
                     </Grid>
                   </Grid>
