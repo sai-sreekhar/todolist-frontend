@@ -182,7 +182,14 @@ export default function FormComponent() {
                           {item.title[0]}
                         </Avatar>
                       </ListItemAvatar>
-                      <ListItemText primary={item.title} />
+                      <ListItemText
+                        primary={item.title}
+                        primaryTypographyProps={{
+                          style: {
+                            wordBreak: "break-word",
+                          },
+                        }}
+                      />
                       <ListItemSecondaryAction>
                         <IconButton
                           style={{ color: green[500] }}
@@ -222,6 +229,11 @@ export default function FormComponent() {
                       </ListItemAvatar>
                       <ListItemText
                         primary={item.title}
+                        primaryTypographyProps={{
+                          style: {
+                            wordBreak: "break-word",
+                          },
+                        }}
                         secondary={item.currentTime}
                       />
                     </ListItem>
