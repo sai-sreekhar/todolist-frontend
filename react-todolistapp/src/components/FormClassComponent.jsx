@@ -131,11 +131,12 @@ class FormClassComponent extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
     console.log("Form submitted");
-    this.setState({
-      isLoading: true,
-    });
 
     if (this.state.inputData.length > 5 && this.state.inputData !== "") {
+      this.setState({
+        isLoading: true,
+      });
+
       fetch(
         "http://localhost:5000/tasks/newTask?userId=6448d1b4e746aac69165e3c9",
         {
@@ -178,8 +179,8 @@ class FormClassComponent extends Component {
   handleCheck = (id) => {
     this.setState({
       isLoading: true,
-    })
-    
+    });
+
     fetch(
       `http://localhost:5000/tasks/completeTask/${id}?userId=6448d1b4e746aac69165e3c9`,
       {
@@ -192,11 +193,7 @@ class FormClassComponent extends Component {
         if (!res.isSucess) {
           throw new Error();
         }
-        fetch("http://localhost:5000/tasks?userId=6448d1b4e746aac69165e3c9")
-          .then((res) => res.json())
-          .then((res) => {
-            this.refreshPosts();
-          });
+        this.refreshPosts();
       })
       .catch((err) => {
         console.log(err);
@@ -210,7 +207,7 @@ class FormClassComponent extends Component {
   handleDelete = (id) => {
     this.setState({
       isLoading: true,
-    })
+    });
 
     fetch(
       `http://localhost:5000/tasks/deleteTask/${id}?userId=6448d1b4e746aac69165e3c9`,
@@ -252,7 +249,7 @@ class FormClassComponent extends Component {
   componentDidMount() {
     this.setState({
       isLoading: true,
-    })
+    });
     fetch("http://localhost:5000/tasks?userId=6448d1b4e746aac69165e3c9")
       .then((res) => res.json())
       .then((res) => {
@@ -407,7 +404,7 @@ class FormClassComponent extends Component {
                                 wordBreak: "break-word",
                               },
                             }}
-                            secondary={item.userId}
+                            secondary={item._id}
                           />
                         </ListItem>
                       ))
