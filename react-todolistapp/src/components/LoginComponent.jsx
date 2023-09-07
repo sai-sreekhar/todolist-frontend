@@ -15,7 +15,6 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-import DashboardComponent from "./DashboardComponent";
 import { useAuth } from "./AuthProvider";
 import { useNavigate } from "react-router-dom";
 

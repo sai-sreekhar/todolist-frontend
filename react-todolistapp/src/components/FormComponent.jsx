@@ -22,7 +22,6 @@ import MuiAlert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
-import { useAuth } from "./AuthProvider";
 
 const useStyles = (theme) => ({
   container: {
@@ -72,7 +71,6 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 function FormComponent(props) {
-  const auth = useAuth();
   const userId = localStorage.getItem("userId");
 
   const [state, setState] = useState({
@@ -299,7 +297,7 @@ function FormComponent(props) {
           isError: true,
         });
       });
-  }, []); // Empty dependency array to ensure this effect runs only once
+  }, []);
 
   const { classes } = props;
   return (
