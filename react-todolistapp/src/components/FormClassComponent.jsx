@@ -22,6 +22,7 @@ import MuiAlert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
+import { useAuth } from "./AuthProvider";
 
 const useStyles = (theme) => ({
   container: {
@@ -71,6 +72,8 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 class FormClassComponent extends Component {
+  auth = useAuth();
+  userId = this.auth.userIdRef.current;
   constructor() {
     super();
     this.state = {
@@ -100,7 +103,7 @@ class FormClassComponent extends Component {
   };
 
   refreshPosts() {
-    fetch("http://localhost:5000/tasks?userId=6448d1b4e746aac69165e3c9")
+    fetch(`http://localhost:5000/tasks?userId=${this.userId}`)
       .then((res) => res.json())
       .then((res) => {
         if (!res.isSucess) {
@@ -138,7 +141,7 @@ class FormClassComponent extends Component {
       });
 
       fetch(
-        "http://localhost:5000/tasks/newTask?userId=6448d1b4e746aac69165e3c9",
+        `http://localhost:5000/tasks/newTask?userId=${this.userId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -182,7 +185,7 @@ class FormClassComponent extends Component {
     });
 
     fetch(
-      `http://localhost:5000/tasks/completeTask/${id}?userId=6448d1b4e746aac69165e3c9`,
+      `http://localhost:5000/tasks/completeTask/${id}?userId=${this.userId}`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -210,7 +213,7 @@ class FormClassComponent extends Component {
     });
 
     fetch(
-      `http://localhost:5000/tasks/deleteTask/${id}?userId=6448d1b4e746aac69165e3c9`,
+      `http://localhost:5000/tasks/deleteTask/${id}?userId=${this.userId}`,
       {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -250,7 +253,7 @@ class FormClassComponent extends Component {
     this.setState({
       isLoading: true,
     });
-    fetch("http://localhost:5000/tasks?userId=6448d1b4e746aac69165e3c9")
+    fetch(`http://localhost:5000/tasks?userId==${this.userId}`)
       .then((res) => res.json())
       .then((res) => {
         const completedTask = res.data.filter(
