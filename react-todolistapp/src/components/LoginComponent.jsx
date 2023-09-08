@@ -62,31 +62,31 @@ function LoginComponent() {
   };
 
   const handlePasswordChange = (event) => {
-    let validPassRegex = /(?=.*?[#?!@$%^&*-])/;
+    // let validPassRegex = /(?=.*?[#?!@$%^&*-])/;
 
-    if (event.target.value.trim().length <= 6) {
-      setIsInputPasswordError(true);
-      setInputPasswordError("Password must be atleast 6 characters");
-    } else if (!validPassRegex.test(event.target.value)) {
-      setIsInputPasswordError(true);
-      setInputPasswordError(
-        "Password must contain atleast one special character"
-      );
-    } else {
-      setIsInputPasswordError(false);
-      setInputPasswordError("");
-    }
+    // if (event.target.value.trim().length <= 6) {
+    //   setIsInputPasswordError(true);
+    //   setInputPasswordError("Invalid Password");
+      // } else if (!validPassRegex.test(event.target.value)) {
+      // setIsInputPasswordError(true);
+      // setInputPasswordError(
+      // "Password must contain atleast one special character"
+      // );
+    // } else {
+    //   setIsInputPasswordError(false);
+    //   setInputPasswordError("");
+    // }
     setPassword(event.target.value.trim());
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (isInputEmailError || isInputPasswordError) {
+    if (isInputEmailError) {
       setIsError(true);
-      setErrorMessage("Invalid Input");
+      setErrorMessage("Invalid Email or Password");
     } else if (email.trim().length === 0 || password.trim().length === 0) {
       setIsError(true);
-      setErrorMessage("Invalid Input");
+      setErrorMessage("Invalid Email or Password");
     } else {
       const data = new FormData(event.currentTarget);
 
@@ -105,7 +105,7 @@ function LoginComponent() {
           if (!res.isSucess) {
             setIsLoading(false);
             setIsError(true);
-            setErrorMessage(res.err?res.err:"Internal Server Error");
+            setErrorMessage(res.err ? res.err : "Internal Server Error");
           } else {
             localStorage.setItem("userId", res.userId);
             setIsLoading(false);
