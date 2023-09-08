@@ -73,7 +73,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 class FormClassComponent extends Component {
   auth = useAuth();
-  userId = this.auth.userIdRef.current;
+  userId = localStorage.getItem("userId");
   constructor() {
     super();
     this.state = {

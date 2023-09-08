@@ -73,38 +73,32 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 function FormComponent(props) {
   const userId = localStorage.getItem("userId");
 
-  const [state, setState] = useState({
-    inputData: "",
-    remainingTaskList: [],
-    completedTaskList: [],
-    inputError: "",
-    isError: false,
-    isLoading: false,
-    errorMessage: "",
-  });
+  const [inputData, setInputData] = useState("");
+  const [remainingTaskList, setRemainingTaskList] = useState([]);
+  const [completedTaskList, setCompletedTaskList] = useState([]);
+  const [inputError, setInputError] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSnackBarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
 
-    setState({
-      ...state,
-      isError: false,
-    });
+    setIsError(false);
   };
 
   const refreshPosts = () => {
+    setIsLoading(true);
+
     fetch(`http://localhost:5000/tasks?userId=${userId}`)
       .then((res) => res.json())
       .then((res) => {
         if (!res.isSucess) {
-          setState({
-            ...state,
-            isLoading: false,
-            isError: true,
-            errorMessage: res.err,
-          });
+          setIsLoading(false);
+          setIsError(true);
+          setErrorMessage(res.err ? res.err : "Internal Server Error");
           return;
         }
         const completedTask = res.data.filter(
@@ -113,86 +107,63 @@ function FormComponent(props) {
         const remainingTask = res.data.filter(
           (item) => item.isCompleted === false
         );
-        setState({
-          ...state,
-          remainingTaskList: remainingTask,
-          completedTaskList: completedTask,
-          inputData: "",
-          isLoading: false,
-        });
+        setRemainingTaskList(remainingTask);
+        setCompletedTaskList(completedTask);
+        setInputData("");
+        setIsLoading(false);
       })
       .catch((err) => {
         console.log(err);
-        setState({
-          ...state,
-          isLoading: false,
-          isError: true,
-        });
+        setIsLoading(false);
+        setIsError(true);
       });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (state.inputData.length > 5 && state.inputData !== "") {
-      setState({
-        ...state,
-        isLoading: true,
-      });
+    if (inputData.length > 5 && inputData !== "") {
+      setIsLoading(true);
 
       fetch(`http://localhost:5000/tasks/newTask?userId=${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          task: state.inputData,
+          task: inputData,
         }),
       })
         .then((res) => res.json())
         .then((res) => {
           if (!res.isSucess) {
-            setState({
-              ...state,
-              isLoading: false,
-              isError: true,
-              errorMessage: res.err,
-            });
+            setIsLoading(false);
+            setIsError(true);
+            setErrorMessage(res.err ? res.err : "Internal Server Error");
             return;
           }
           refreshPosts();
         })
         .catch((err) => {
           console.log("Error", err);
-          setState({
-            ...state,
-            isLoading: false,
-            isError: true,
-          });
+          setIsLoading(false);
+          setIsError(true);
         });
     }
   };
 
   const handleOnChange = ({ target }) => {
-    target.value.length <= 5
-      ? setState({
-          ...state,
-          inputError: "Task should have at least 5 characters",
-        })
-      : setState({
-          ...state,
-          inputError: "",
-        });
+    console.log(target.value.length, inputError, inputData);
+    if (target.value.length <= 5) {
+      console.log("object");
+      setInputError("Task should have at least 5 characters");
+    } else {
+      setInputError("");
+    }
 
-    setState({
-      ...state,
-      inputData: target.value,
-    });
+    setInputData(target.value);
   };
 
   const handleCheck = (id) => {
-    setState({
-      ...state,
-      isLoading: true,
-    });
+    setIsLoading(true);
 
     fetch(`http://localhost:5000/tasks/completeTask/${id}?userId=${userId}`, {
       method: "PATCH",
@@ -201,31 +172,22 @@ function FormComponent(props) {
       .then((res) => res.json())
       .then((res) => {
         if (!res.isSucess) {
-          setState({
-            ...state,
-            isLoading: false,
-            isError: true,
-            errorMessage: res.err,
-          });
+          setIsLoading(false);
+          setIsError(true);
+          setErrorMessage(res.err ? res.err : "Internal Server Error");
           return;
         }
         refreshPosts();
       })
       .catch((err) => {
         console.log(err);
-        setState({
-          ...state,
-          isLoading: false,
-          isError: true,
-        });
+        setIsLoading(false);
+        setIsError(true);
       });
   };
 
   const handleDelete = (id) => {
-    setState({
-      ...state,
-      isLoading: true,
-    });
+    setIsLoading(true);
 
     fetch(`http://localhost:5000/tasks/deleteTask/${id}?userId=${userId}`, {
       method: "DELETE",
@@ -234,68 +196,46 @@ function FormComponent(props) {
       .then((res) => res.json())
       .then((res) => {
         if (!res.isSucess) {
-          setState({
-            ...state,
-            isLoading: false,
-            isError: true,
-            errorMessage: res.err,
-          });
+          setIsLoading(false);
+          setIsError(true);
+          setErrorMessage(res.err ? res.err : "Internal Server Error");
           return;
         }
         refreshPosts();
       })
       .catch((err) => {
         console.log(err);
-        setState({
-          ...state,
-          isLoading: false,
-          isError: true,
-        });
+        setIsLoading(false);
+        setIsError(true);
       });
   };
 
-  const getCurrentTime = (date) => {
-    let hour = date.getHours();
-    let minutes = date.getMinutes();
-    let amPm = hour >= 12 ? "pm" : "am";
-
-    // Formatting date 12:30 pm
-    hour = hour % 12;
-    hour = hour ? hour : 12; // the hour "0" should be 12
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-
-    let currentTime = hour + ":" + minutes + amPm;
-    return currentTime;
-  };
-
   useEffect(() => {
-    setState({
-      ...state,
-      isLoading: true,
-    });
+    setIsLoading(true);
+
     fetch(`http://localhost:5000/tasks?userId=${userId}`)
       .then((res) => res.json())
       .then((res) => {
-        const completedTask = res.data.filter(
-          (item) => item.isCompleted === true
-        );
-        const remainingTask = res.data.filter(
-          (item) => item.isCompleted === false
-        );
-        setState({
-          ...state,
-          remainingTaskList: remainingTask,
-          completedTaskList: completedTask,
-          isLoading: false,
-        });
+        if (!res.isSucess) {
+          setIsLoading(false);
+          setIsError(true);
+          setErrorMessage(res.err ? res.err : "Internal Server Error");
+        } else {
+          const completedTask = res.data.filter(
+            (item) => item.isCompleted === true
+          );
+          const remainingTask = res.data.filter(
+            (item) => item.isCompleted === false
+          );
+          setRemainingTaskList(remainingTask);
+          setCompletedTaskList(completedTask);
+          setIsLoading(false);
+        }
       })
       .catch((err) => {
         console.log(err);
-        setState({
-          ...state,
-          isLoading: false,
-          isError: true,
-        });
+        setIsLoading(false);
+        setIsError(true);
       });
   }, []);
 
@@ -304,12 +244,12 @@ function FormComponent(props) {
     <Stack>
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={state.isLoading}
+        open={isLoading}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
       <Snackbar
-        open={state.isError}
+        open={isError}
         autoHideDuration={6000}
         onClose={handleSnackBarClose}
       >
@@ -317,7 +257,9 @@ function FormComponent(props) {
           onClose={handleSnackBarClose}
           severity="error"
           sx={{ width: "100%" }}
-        ></Alert>
+        >
+          {errorMessage}
+        </Alert>
       </Snackbar>
       <Box className={classes.container}>
         <Grid container>
@@ -336,11 +278,11 @@ function FormComponent(props) {
                       variant="outlined"
                       fullWidth={true}
                       size="small"
-                      value={state.inputData}
+                      value={inputData}
                       onChange={handleOnChange}
-                      error={state.inputError ? true : false}
-                      helperText={state.inputError}
-                      disabled={state.isLoading}
+                      error={inputError ? true : false}
+                      helperText={inputError}
+                      disabled={isLoading}
                     />
                   </Grid>
                 </Grid>
@@ -360,8 +302,8 @@ function FormComponent(props) {
                     Remaining Tasks
                   </Typography>
                   {/* //mapping remaining list task  */}
-                  {state.remainingTaskList.length > 0 ? (
-                    state.remainingTaskList.map((item, i) => (
+                  {remainingTaskList.length > 0 ? (
+                    remainingTaskList.map((item, i) => (
                       <ListItem key={i}>
                         <ListItemAvatar>
                           <Avatar className={classes.remainTaskAvatar}>
@@ -408,8 +350,8 @@ function FormComponent(props) {
                     Completed Tasks
                   </Typography>
                   {/* //mapping completeTaskAvatar list task  */}
-                  {state.completedTaskList.length > 0 ? (
-                    state.completedTaskList.map((item, i) => (
+                  {completedTaskList.length > 0 ? (
+                    completedTaskList.map((item, i) => (
                       <ListItem key={i}>
                         <ListItemAvatar>
                           <Avatar className={classes.completeTaskAvatar}>

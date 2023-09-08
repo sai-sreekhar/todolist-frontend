@@ -1,128 +1,160 @@
 import React, { useState, useEffect } from "react";
+import {
+  Backdrop,
+  Box,
+  CircularProgress,
+  Container,
+  CssBaseline,
+  Grid,
+  Link,
+  TextField,
+  Typography,
+  Stack,
+} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import Stack from "@mui/material/Stack";
-import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
-import { useAuth } from "./AuthProvider";
+import Snackbar from "@mui/material/Snackbar";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 
 const defaultTheme = createTheme();
 
-const Alert = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 function LoginComponent() {
   const navigate = useNavigate();
-  const auth = useAuth();
-
-  const [state, setState] = useState({
-    username: "",
-    password: "",
-    isError: false,
-    isLoading: false,
-    errorMessage: "",
-    isLoggedIn: localStorage.getItem("userId") ? true : false,
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("userId") ? true : false
+  );
+  const [isInputEmailError, setIsInputEmailError] = useState(false);
+  const [inputEmailError, setInputEmailError] = useState("");
+  const [isInputPasswordError, setIsInputPasswordError] = useState(false);
+  const [inputPasswordError, setInputPasswordError] = useState("");
 
   const handleSnackBarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
 
-    setState({
-      ...state,
-      isError: false,
-    });
+    setIsError(false);
+  };
+
+  const handleEmailChange = (event) => {
+    const validRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    if (!validRegex.test(event.target.value)) {
+      setIsInputEmailError(true);
+      setInputEmailError("Invalid Email");
+    } else {
+      setIsInputEmailError(false);
+      setInputEmailError("");
+    }
+    setEmail(event.target.value);
+  };
+
+  const handlePasswordChange = (event) => {
+    let validPassRegex = /(?=.*?[#?!@$%^&*-])/;
+
+    if (event.target.value.trim().length <= 6) {
+      setIsInputPasswordError(true);
+      setInputPasswordError("Password must be atleast 6 characters");
+    } else if (!validPassRegex.test(event.target.value)) {
+      setIsInputPasswordError(true);
+      setInputPasswordError(
+        "Password must contain atleast one special character"
+      );
+    } else {
+      setIsInputPasswordError(false);
+      setInputPasswordError("");
+    }
+    setPassword(event.target.value.trim());
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    console.log("Inside handleSubmit");
+    if (isInputEmailError || isInputPasswordError) {
+      console.log("object");
+      setIsError(true);
+      setErrorMessage("Invalid Input");
+    } else if (email.trim().length === 0 || password.trim().length === 0) {
+      console.log("object1");
+      setIsError(true);
+      setErrorMessage("Invalid Input");
+    } else {
+      const data = new FormData(event.currentTarget);
+      console.log(data);
 
-    setState({
-      ...state,
-      isLoading: true,
-    });
+      setIsLoading(true);
 
-    fetch("http://localhost:5000/users/signin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: data.get("email"),
-        password: data.get("password"),
-      }),
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (!res.isSucess) {
-          console.log(res.err);
-          setState({
-            ...state,
-            isLoading: false,
-            isError: true,
-            errorMessage: res.err,
-          });
-          return;
-        }
-        localStorage.setItem("userId", res.userId);
-        auth.login(data.get("email"), res.userId);
-        setState({
-          ...state,
-          isLoading: false,
-          isLoggedIn: true,
-        });
+      fetch("http://localhost:5000/users/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: data.get("email"),
+          password: data.get("password"),
+        }),
       })
-      .catch((err) => {
-        console.log(err);
-
-        setState({
-          ...state,
-          isLoading: false,
-          isError: true,
-          errorMessage: err,
+        .then((res) => res.json())
+        .then((res) => {
+          if (!res.isSucess) {
+            console.log(res.err?res.err:"Internal Server Error");
+            setIsLoading(false);
+            setIsError(true);
+            setErrorMessage(res.err?res.err:"Internal Server Error");
+          } else {
+            localStorage.setItem("userId", res.userId);
+            setIsLoading(false);
+            setIsLoggedIn(true);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setIsLoading(false);
+          setIsError(true);
+          setErrorMessage(err);
         });
-      });
+    }
   };
 
   useEffect(() => {
-    if (state.isLoggedIn) {
+    console.log("calling use effect");
+    if (isLoggedIn) {
       navigate("/dashboard", { replace: true });
     }
-  }, [state.isLoggedIn]);
+  }, [isLoggedIn]);
 
   return (
     <Stack>
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={state.isLoading}
+        open={isLoading}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
       <Snackbar
-        open={state.isError}
+        open={isError}
         autoHideDuration={6000}
         onClose={handleSnackBarClose}
       >
-        <Alert
-          onClose={handleSnackBarClose}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {state.errorMessage}
-        </Alert>
+        <div>
+          <Alert
+            onClose={handleSnackBarClose}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            {errorMessage}
+          </Alert>
+        </div>
       </Snackbar>
       <ThemeProvider theme={defaultTheme}>
         <Container component="main" maxWidth="xs">
@@ -155,6 +187,11 @@ function LoginComponent() {
                 label="Email Address"
                 name="email"
                 autoFocus
+                value={email}
+                onChange={handleEmailChange}
+                error={isInputEmailError ? true : false}
+                helperText={inputEmailError}
+                disabled={isLoading}
               />
               <TextField
                 margin="normal"
@@ -164,6 +201,11 @@ function LoginComponent() {
                 label="Password"
                 type="password"
                 id="password"
+                value={password}
+                onChange={handlePasswordChange}
+                error={isInputPasswordError ? true : false}
+                helperText={inputPasswordError}
+                disabled={isLoading}
               />
               <Button
                 type="submit"
