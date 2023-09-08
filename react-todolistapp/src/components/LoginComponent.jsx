@@ -81,18 +81,14 @@ function LoginComponent() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log("Inside handleSubmit");
     if (isInputEmailError || isInputPasswordError) {
-      console.log("object");
       setIsError(true);
       setErrorMessage("Invalid Input");
     } else if (email.trim().length === 0 || password.trim().length === 0) {
-      console.log("object1");
       setIsError(true);
       setErrorMessage("Invalid Input");
     } else {
       const data = new FormData(event.currentTarget);
-      console.log(data);
 
       setIsLoading(true);
 
@@ -107,7 +103,6 @@ function LoginComponent() {
         .then((res) => res.json())
         .then((res) => {
           if (!res.isSucess) {
-            console.log(res.err?res.err:"Internal Server Error");
             setIsLoading(false);
             setIsError(true);
             setErrorMessage(res.err?res.err:"Internal Server Error");
@@ -127,7 +122,6 @@ function LoginComponent() {
   };
 
   useEffect(() => {
-    console.log("calling use effect");
     if (isLoggedIn) {
       navigate("/dashboard", { replace: true });
     }

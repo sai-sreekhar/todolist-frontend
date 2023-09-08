@@ -8,7 +8,6 @@ function LogoutComponent() {
 
   const handleLogout = () => {
     localStorage.removeItem("userId");
-    console.log("Logout successful");
     navigate("/login",{replace:true});
   };
 

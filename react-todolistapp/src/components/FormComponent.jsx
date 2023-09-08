@@ -143,7 +143,7 @@ function FormComponent(props) {
           refreshPosts();
         })
         .catch((err) => {
-          console.log("Error", err);
+          console.log(err);
           setIsLoading(false);
           setIsError(true);
         });
@@ -151,9 +151,7 @@ function FormComponent(props) {
   };
 
   const handleOnChange = ({ target }) => {
-    console.log(target.value.length, inputError, inputData);
     if (target.value.length <= 5) {
-      console.log("object");
       setInputError("Task should have at least 5 characters");
     } else {
       setInputError("");

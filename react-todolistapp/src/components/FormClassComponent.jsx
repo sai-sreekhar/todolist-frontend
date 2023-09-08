@@ -133,7 +133,6 @@ class FormClassComponent extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted");
 
     if (this.state.inputData.length > 5 && this.state.inputData !== "") {
       this.setState({
@@ -158,7 +157,7 @@ class FormClassComponent extends Component {
           this.refreshPosts();
         })
         .catch((err) => {
-          console.log("Error", err);
+          console.log(err);
           this.setState({
             isLoading: false,
             isError: true,
